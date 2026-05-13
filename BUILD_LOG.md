@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: never
+LAST_TICK: 2026-05-13 23:14 — tick 1: closed Phase 0 (env validator + verified gitkeep/gitignore/git-init).
 
 ## Product
 
@@ -50,10 +50,9 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 - [x] 0.2 Install deps: grammy, viem, wagmi, @tanstack/react-query, better-sqlite3, zod, swr, recharts
 - [x] 0.3 Create folder structure: lib/, app/, bot/, scripts/, data/, components/
 - [x] 0.4 Add .env.example
-- [ ] 0.5 Add data/.gitkeep, ensure data/*.db is in .gitignore
-- [ ] 0.6 Create lib/env.ts that reads + validates env via zod (every required key has fallback or marks degraded mode)
-- [ ] 0.7 First commit
-  - Test: `cd ~/Documents/base-yield-radar && git log --oneline | head -1` shows a commit
+- [x] 0.5 Add data/.gitkeep, ensure data/*.db is in .gitignore — verified during setup
+- [x] 0.6 Create lib/env.ts that reads + validates env via zod (every required key has fallback or marks degraded mode) — tick 1, tsc passes
+- [x] 0.7 First commit — multiple commits exist, verified via git log
 
 ## Phase 1 — DeFiLlama integration (no key needed)
 
