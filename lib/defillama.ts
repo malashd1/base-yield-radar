@@ -66,8 +66,9 @@ export async function fetchBasePools(
   const { minTvlUsd = 0 } = opts;
   const res = await fetch(POOLS_URL, {
     headers: { accept: "application/json" },
-    // Next.js fetch caching: revalidate every hour. In raw Node (tsx scripts) this is ignored.
-    next: { revalidate: 3600 },
+    // We use our own FS cache (lib/cache.ts) — Next's data cache can't hold the
+    // >2MB pools payload anyway. Disable Next-side caching to silence warnings.
+    cache: "no-store",
   });
   if (!res.ok) {
     throw new Error(

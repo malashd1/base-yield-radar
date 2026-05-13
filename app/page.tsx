@@ -86,14 +86,6 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-white/10 px-6 py-8 text-xs text-white/40">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
-          <span>Base Yield Radar · data via DeFiLlama · routing via 0x</span>
-          <span>
-            Not financial advice. DeFi carries risk including total loss.
-          </span>
-        </div>
-      </footer>
     </main>
   );
 }

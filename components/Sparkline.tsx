@@ -20,17 +20,39 @@ interface SparklineProps {
   color?: string;
   /** Hide tooltip (small inline use). Default true (interactive). */
   interactive?: boolean;
-  /** Format the tooltip value (e.g. "12.34%"). */
-  formatValue?: (v: number) => string;
+  /**
+   * Static format hint passed from a server component (must be serializable).
+   * For free-form formatters, use `formatValueClient` from another client component.
+   */
+  valueFormat?: "number" | "percent" | "usd";
+  /** Suffix appended to the value in tooltip. Useful when valueFormat="number". */
+  valueSuffix?: string;
 }
+
+const FORMATTERS: Record<
+  NonNullable<SparklineProps["valueFormat"]>,
+  (v: number) => string
+> = {
+  number: (v) => v.toFixed(2),
+  percent: (v) => `${v.toFixed(2)}%`,
+  usd: (v) =>
+    "$" +
+    new Intl.NumberFormat("en", {
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }).format(v),
+};
 
 export default function Sparkline({
   data,
   height = 80,
   color = "#3b82f6",
   interactive = true,
-  formatValue = (v) => v.toFixed(2),
+  valueFormat = "number",
+  valueSuffix = "",
 }: SparklineProps) {
+  const formatValue = (v: number) =>
+    FORMATTERS[valueFormat](v) + (valueSuffix ? ` ${valueSuffix}` : "");
   // Normalize: drop nulls, sort by timestamp ascending. recharts handles gaps if we pass nulls,
   // but for a sparkline a clean monotonic line reads better.
   const clean = data

@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-13 23:56 — tick 9: Sparkline component (recharts AreaChart, gradient fill, tooltip); chunk commit 2.2/2.3/2.4.
+LAST_TICK: 2026-05-14 00:10 — tick 12: lib/db.ts (better-sqlite3) with 4 tables + helpers + globalThis caching for Next hot-reload; smoke test: tables created, writes round-trip cleanly. Chunk commit 2.5/2.6/3.1.
 
 ## Product
 
@@ -69,15 +69,12 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 - [x] 2.2 app/yields/page.tsx: server component — table of top 30 yields — tick 7, live curl returned 200 with aerodrome/uniswap names; lib/format.ts added (fmtUsd, fmtApy, risk colors)
 - [x] 2.3 components/YieldTable.tsx: sortable cols (project/symbol/TVL/APY) + filters (TVL presets, stable, audited) — tick 8, "audited" backed by hardcoded set in lib/protocols.ts (aerodrome, morpho, yearn, aave, compound, …)
 - [x] 2.4 components/Sparkline.tsx: 30d APY trend (recharts AreaChart with gradient fill, optional tooltip, graceful "not enough data" fallback) — tick 9, tsc clean
-- [ ] 2.5 app/protocols/[slug]/page.tsx: protocol page with chart + pools list
-- [ ] 2.6 components/Header.tsx + Footer.tsx
-  - Test: `npm run build` passes; `curl localhost:3000/yields` returns 200 HTML containing protocol names
+- [x] 2.5 app/protocols/[slug]/page.tsx: header (audited badge, total TVL, pool count) + Sparkline of top pool APY + table of all pools — tick 10, /protocols/morpho-blue → 200, /protocols/this-does-not-exist → 404
+- [x] 2.6 components/Header.tsx + Footer.tsx — tick 11; mounted in layout.tsx; npm run build clean (15.2s compile, 17.1s tsc, 5 routes); /yields HTML containing protocol names verified in ticks 7-8
 
 ## Phase 3 — Storage (subscriptions, snapshots, alerts)
 
-- [ ] 3.1 lib/db.ts: better-sqlite3 wrapper, ensures schema on import
-  - Tables: `subscriptions(tg_user_id, kind, target, threshold_pct, created_at)`, `snapshots(pool_id, tvl_usd, apy, ts)`, `alerts(id, kind, payload_json, sent_to_user_id, sent_at)`, `users(tg_user_id, username, joined_at, prefs_json)`
-  - Test: `npx tsx -e "import('./lib/db').then(m => console.log(m.db.prepare('SELECT name FROM sqlite_master').all()))"` lists 4 tables
+- [x] 3.1 lib/db.ts: better-sqlite3 wrapper, schema on import — tick 12. WAL mode, FK on, 4 tables (users, subscriptions, snapshots, alerts) + indexes; helpers upsertUser/addSubscription/recordSnapshot/recordAlert; globalThis caching to survive Next dev hot-reload. Smoke at scripts/_test-db.ts.
 
 ## Phase 4 — Safety monitor
 
