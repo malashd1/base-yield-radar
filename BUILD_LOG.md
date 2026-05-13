@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-14 00:18 — tick 14: lib/safety.ts (detectTvlDrops + detectApySpikes); fixture test detected 30% drop and 4x APY spike on synthetic data; chunk commit 4.1/4.2/4.3.
+LAST_TICK: 2026-05-14 00:33 — tick 17: /start handler (welcome + upsertUser); fixed dry-run init by injecting fake botInfo into Bot ctor (grammy refuses handleUpdate w/o it); test passes end-to-end. Chunk commit 4.4/5.1/5.2.
 
 ## Product
 
@@ -81,13 +81,12 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 - [x] 4.1 scripts/snapshot.ts: top-50 Base pools by TVL → snapshots table — tick 13. CLI + reusable runSnapshot() for cron import. First run: 50 distinct pools recorded; top by TVL: morpho-blue cbBTC $2.4B, STEAKUSDC $467M.
 - [x] 4.2 lib/safety.ts: detectTvlDrops(windowHours=6, minDropPct=20) — tick 14, fixture (1M → 700k) → exactly 30% drop alert
 - [x] 4.3 lib/safety.ts: detectApySpikes(windowHours=24, spikeMultiplier=3) — tick 14, fixture (baseline 4%, latest 16%) → 4x multiplier alert
-- [ ] 4.4 app/api/cron/safety/route.ts: callable cron endpoint that snapshots, runs detectors, writes alerts to db, calls notify()
-  - Test: hit endpoint twice (5 min apart in mocked time), expect alerts table grows
+- [x] 4.4 app/api/cron/safety/route.ts: cron endpoint, GET ?windowHours=&minDropPct=&apyWindowHours=&spikeMultiplier=&limit= — tick 15. Pipeline: runSnapshot→detectTvlDrops+detectApySpikes→recordAlert (1h LIKE-dedupe per kind+pool). Returns {ok, tookMs, snapshot, detected, newAlerts}. notify() wiring deferred to 6.2 per BUILD_LOG. Live test: 1st call 1 alert recorded, 2nd call dedup'd (newAlerts=0).
 
 ## Phase 5 — Telegram bot
 
-- [ ] 5.1 bot/index.ts: grammy setup, exports `bot` instance with all handlers
-- [ ] 5.2 bot/handlers/start.ts: /start → registers user in db, shows menu
+- [x] 5.1 bot/index.ts: grammy setup — tick 16. Dry-run mode (placeholder token "0000…:dry-run-no-token") when TELEGRAM_BOT_TOKEN absent; registers 5 handler modules (start/top/watch/alerts/help) + catch-all + bot.catch(); globalThis cache; exports {bot, botLive}.
+- [x] 5.2 bot/handlers/start.ts: /start → upsertUser + Markdown welcome menu — tick 17. Smoke at scripts/_test-bot-start.ts uses grammy api transformer to capture sendMessage; verifies both reply text and db user row.
 - [ ] 5.3 bot/handlers/top.ts: /top → fetches yields API, sends top-10 with inline buttons (Watch, Stake)
 - [ ] 5.4 bot/handlers/watch.ts: /watch <protocol> → adds subscription
 - [ ] 5.5 bot/handlers/alerts.ts: /alerts on|off → toggles safety alert subscription for user

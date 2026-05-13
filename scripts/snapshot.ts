@@ -1,67 +1,13 @@
 /**
- * Take a snapshot of the top-50 Base pools by TVL.
+ * CLI wrapper around lib/snapshot.ts.
  *
  * Usage:
- *   npx tsx scripts/snapshot.ts          # take a single snapshot
- *   npx tsx scripts/snapshot.ts --limit=100  # custom top N
- *
- * Designed to be run by the cron handler (app/api/cron/safety/route.ts) too —
- * the heavy lifting is in `runSnapshot`, which the cron imports directly.
+ *   npx tsx scripts/snapshot.ts                # top 50
+ *   npx tsx scripts/snapshot.ts --limit=100    # custom top N
  */
 
-import { fetchBasePools } from "../lib/defillama";
-import { recordSnapshot } from "../lib/db";
+import { runSnapshot } from "../lib/snapshot";
 
-interface RunOptions {
-  limit?: number;
-  /** Override "now" (epoch seconds). Used by tests. */
-  now?: number;
-}
-
-export interface SnapshotResult {
-  takenAt: number;
-  totalPools: number;
-  recorded: number;
-  topByTvl: Array<{
-    pool: string;
-    project: string;
-    symbol: string;
-    tvlUsd: number;
-    apy: number | null;
-  }>;
-}
-
-export async function runSnapshot(
-  opts: RunOptions = {},
-): Promise<SnapshotResult> {
-  const limit = opts.limit ?? 50;
-  const now = opts.now ?? Math.floor(Date.now() / 1000);
-
-  const all = await fetchBasePools();
-  // Sort by TVL desc — these are the pools that matter for safety monitoring.
-  const top = [...all]
-    .sort((a, b) => b.tvlUsd - a.tvlUsd)
-    .slice(0, limit);
-
-  for (const p of top) {
-    recordSnapshot(p.pool, p.tvlUsd, p.apy, now);
-  }
-
-  return {
-    takenAt: now,
-    totalPools: all.length,
-    recorded: top.length,
-    topByTvl: top.slice(0, 5).map((p) => ({
-      pool: p.pool,
-      project: p.project,
-      symbol: p.symbol,
-      tvlUsd: p.tvlUsd,
-      apy: p.apy,
-    })),
-  };
-}
-
-// CLI entry — only when invoked directly.
 async function cli() {
   const limitArg = process.argv.find((a) => a.startsWith("--limit="));
   const limit = limitArg ? Number(limitArg.split("=")[1]) : 50;
@@ -84,13 +30,7 @@ async function cli() {
   }
 }
 
-// Detect direct invocation (tsx forwards process.argv[1] to the script path).
-const invokedDirectly =
-  process.argv[1] && process.argv[1].endsWith("snapshot.ts");
-
-if (invokedDirectly) {
-  cli().catch((e) => {
-    console.error("FAIL:", e);
-    process.exit(1);
-  });
-}
+cli().catch((e) => {
+  console.error("FAIL:", e);
+  process.exit(1);
+});
