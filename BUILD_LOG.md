@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-14 00:10 — tick 12: lib/db.ts (better-sqlite3) with 4 tables + helpers + globalThis caching for Next hot-reload; smoke test: tables created, writes round-trip cleanly. Chunk commit 2.5/2.6/3.1.
+LAST_TICK: 2026-05-14 00:18 — tick 14: lib/safety.ts (detectTvlDrops + detectApySpikes); fixture test detected 30% drop and 4x APY spike on synthetic data; chunk commit 4.1/4.2/4.3.
 
 ## Product
 
@@ -78,12 +78,9 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 
 ## Phase 4 — Safety monitor
 
-- [ ] 4.1 scripts/snapshot.ts: take snapshot of top-50 Base pools (TVL+APY) and save to snapshots
-  - Test: run script → `select count(*) from snapshots` > 0
-- [ ] 4.2 lib/safety.ts: detectTvlDrops(windowHours=6, minDropPct=20) → returns array of suspicious pools
-  - Test: insert mock snapshots showing 30% drop, run detector, expect 1 alert
-- [ ] 4.3 lib/safety.ts: detectApySpikes(spikeMultiplier=3) → catches APY weirdness (often pre-rug)
-  - Test: similar mock test
+- [x] 4.1 scripts/snapshot.ts: top-50 Base pools by TVL → snapshots table — tick 13. CLI + reusable runSnapshot() for cron import. First run: 50 distinct pools recorded; top by TVL: morpho-blue cbBTC $2.4B, STEAKUSDC $467M.
+- [x] 4.2 lib/safety.ts: detectTvlDrops(windowHours=6, minDropPct=20) — tick 14, fixture (1M → 700k) → exactly 30% drop alert
+- [x] 4.3 lib/safety.ts: detectApySpikes(windowHours=24, spikeMultiplier=3) — tick 14, fixture (baseline 4%, latest 16%) → 4x multiplier alert
 - [ ] 4.4 app/api/cron/safety/route.ts: callable cron endpoint that snapshots, runs detectors, writes alerts to db, calls notify()
   - Test: hit endpoint twice (5 min apart in mocked time), expect alerts table grows
 
