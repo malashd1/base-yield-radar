@@ -8,7 +8,7 @@
 
 ---
 
-LAST_TICK: 2026-05-14 01:10 — tick 24: Providers (WagmiProvider+QueryClientProvider with state-bound QueryClient) mounted in layout; ConnectButton in Header (connect/connecting/connected/disconnect states + per-connector button). npm run build green, 9 routes incl /api/quote. Chunk commit 8.1/8.2/8.3.
+LAST_TICK: 2026-05-14 01:21 — tick 26: StakeForm two-step state machine (idle→approving→idle→depositing→done) using wagmi useReadContract+useWriteContract+useWaitForTransactionReceipt; balance/MAX/wrong-chain handling; /stake/[market] page with generateStaticParams. Build green (10 routes, /stake/morpho-usdc SSG), live curl 200+404. Phase 8 closes; chunk commit 8.4/8.5/8.6.
 STATUS: IN_PROGRESS
 
 ## Product
@@ -109,11 +109,9 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 - [x] 8.1 lib/wagmi.ts: createConfig({chains:[base], connectors:[coinbaseWallet(smartWalletOnly), injected(shimDisconnect)], transports:{base:Alchemy if key else public}, ssr:true}); Register module augmentation for typed hooks — tick 23. WalletConnect omitted (needs WC_PROJECT_ID).
 - [x] 8.2 components/Providers.tsx: client wrapper for WagmiProvider+QueryClientProvider; QueryClient lives in useState (strict-mode safe); mounted in app/layout.tsx — tick 24
 - [x] 8.3 components/ConnectButton.tsx: account states (idle/connecting/connected/error); maps over connectors with per-button `connect()`; mounted in Header — tick 24
-- [ ] 8.4 lib/morpho.ts: hardcoded ONE Morpho vault address (use the official Morpho USDC Steakhouse vault on Base or another well-known one — pick from morpho.org), ABI for `deposit`, helper `buildDepositTx(amount, receiver)`
-  - Test: `npx tsx -e "import('./lib/morpho').then(m => console.log(m.buildDepositTx(1000000n, '0x...')))"` returns valid `to/data/value`
-- [ ] 8.5 app/stake/[market]/page.tsx: stake UI with amount input, balance read, approve+deposit two-step
-- [ ] 8.6 components/StakeForm.tsx: handles approve→deposit state machine
-  - Test: `npm run build` passes, /stake/morpho-usdc renders without errors when not connected
+- [x] 8.4 lib/morpho.ts: Steakhouse USDC vault on Base (0xbeeF010f9cb27031ad51e3333f9aF9C6B1228183) + ERC4626 deposit & ERC20 approve calldata + guardrails — tick 25, smoke verified deposit selector 0x6e553f65 + correct amount encoding
+- [x] 8.5 app/stake/[market]/page.tsx: header (vault meta) + StakeForm; generateStaticParams returns morpho-usdc; 404 for unknown markets — tick 26, live curl 200 OK
+- [x] 8.6 components/StakeForm.tsx: phase machine + balance read + MAX + parseUsdc/formatUsdc + wrong-chain guard + Basescan tx link on success — tick 26, build green
 
 ## Phase 9 — Polish
 
