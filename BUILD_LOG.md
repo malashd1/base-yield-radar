@@ -8,8 +8,8 @@
 
 ---
 
+LAST_TICK: 2026-05-14 01:10 — tick 24: Providers (WagmiProvider+QueryClientProvider with state-bound QueryClient) mounted in layout; ConnectButton in Header (connect/connecting/connected/disconnect states + per-connector button). npm run build green, 9 routes incl /api/quote. Chunk commit 8.1/8.2/8.3.
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-14 00:59 — tick 22: lib/zeroex.ts (0x v2 quote + Permit2 + 25bps affiliate fee, stub mode for dev) + /api/quote route. Bumped tsconfig target ES2017→ES2020 for BigInt literals. Live curl confirmed stub shape and 400-on-bad-input. Phase 7 closes; chunk commit 6.1/6.2/7.1/7.2.
 
 ## Product
 
@@ -106,9 +106,9 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 
 ## Phase 8 — Wallet + Stake (Morpho USDC vault on Base)
 
-- [ ] 8.1 lib/wagmi.ts: chains=[base], connectors=[coinbaseWallet, injected, walletConnect (optional)]
-- [ ] 8.2 components/Providers.tsx: WagmiProvider + QueryClientProvider, mount in app/layout.tsx
-- [ ] 8.3 components/ConnectButton.tsx: connect/disconnect UI
+- [x] 8.1 lib/wagmi.ts: createConfig({chains:[base], connectors:[coinbaseWallet(smartWalletOnly), injected(shimDisconnect)], transports:{base:Alchemy if key else public}, ssr:true}); Register module augmentation for typed hooks — tick 23. WalletConnect omitted (needs WC_PROJECT_ID).
+- [x] 8.2 components/Providers.tsx: client wrapper for WagmiProvider+QueryClientProvider; QueryClient lives in useState (strict-mode safe); mounted in app/layout.tsx — tick 24
+- [x] 8.3 components/ConnectButton.tsx: account states (idle/connecting/connected/error); maps over connectors with per-button `connect()`; mounted in Header — tick 24
 - [ ] 8.4 lib/morpho.ts: hardcoded ONE Morpho vault address (use the official Morpho USDC Steakhouse vault on Base or another well-known one — pick from morpho.org), ABI for `deposit`, helper `buildDepositTx(amount, receiver)`
   - Test: `npx tsx -e "import('./lib/morpho').then(m => console.log(m.buildDepositTx(1000000n, '0x...')))"` returns valid `to/data/value`
 - [ ] 8.5 app/stake/[market]/page.tsx: stake UI with amount input, balance read, approve+deposit two-step

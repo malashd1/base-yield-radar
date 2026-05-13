@@ -1,13 +1,13 @@
 import Link from "next/link";
+import ConnectButton from "@/components/ConnectButton";
 
 /**
- * Site header. Server component — no client interactivity needed yet.
- * When we add wallet connect (Phase 8), the ConnectButton mount goes here.
+ * Site header. Mostly server, but mounts the client ConnectButton.
  */
 export default function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-[#050608]/80 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
         <Link href="/" className="flex items-center gap-2">
           <span className="flex h-6 w-6 items-center justify-center rounded bg-blue-500/20 text-xs font-semibold text-blue-300">
             B
@@ -26,6 +26,9 @@ export default function Header() {
           >
             TG bot ↗
           </a>
+          <div className="ml-2">
+            <ConnectButton />
+          </div>
         </nav>
       </div>
     </header>
