@@ -32,10 +32,15 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 5. Never edit `~/Documents/auto_invoice` or `~/Documents/builder-card` (different projects).
 6. Don't add features not in this log. If you spot something useful, append it under `## Backlog (not in scope)`.
 7. After every 3 completed tasks: `git add -A && git commit -m "chunk: <last task ids>"`.
-8. If external API returns 429 / rate-limit text: ScheduleWakeup with delaySeconds=1700, reason="rate-limited by <api>, waiting".
-9. If you need an API key not in `.env.local`: mark `[BLOCKED: needs ENV_VAR_NAME]` and continue with other tasks.
+8. If external API returns 429 / rate-limit text: ScheduleWakeup with delaySeconds=1700, reason="rate-limited by <api>, waiting". This pause is **only** for the rate-limited task — on next tick, continue with other tasks first.
+9. **BLOCKED handling — never let this stop progress:**
+   - If a task requires an env var not in `.env.local`, OR depends on something only a human can do (Vercel login, domain purchase, etc.) → mark `[BLOCKED: <reason>]` and **immediately pick the next actionable task within the SAME tick**. Do not ScheduleWakeup yet.
+   - Keep skipping BLOCKED tasks within a tick until you find one you CAN complete. Only schedule the next tick after you've actually done productive work (or proven there's none left).
+   - On every new tick, re-scan `.env.local` and unblock any tasks whose dependencies are now satisfied.
+   - A BLOCKED task is never a stop condition — it's just "skip for now".
 10. ScheduleWakeup cadence between normal ticks: 90-180s.
-11. When all tasks `[x]` or `[BLOCKED]` or `[NEEDS_HUMAN]` → set `STATUS: COMPLETE` at top, write final summary in `## Done` section, do NOT ScheduleWakeup.
+11. **Stop condition (only ONE):** every remaining `[ ]` task is either `[x]`, `[BLOCKED]`, or `[NEEDS_HUMAN]`. Then set `STATUS: COMPLETE` at top, write final summary in `## Done` section, do NOT ScheduleWakeup.
+12. If you find yourself with nothing actionable but BLOCKED tasks remain → that IS complete for now. Mark COMPLETE and stop. Do not loop forever waiting for human.
 
 ---
 
