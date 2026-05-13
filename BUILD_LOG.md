@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-14 00:33 — tick 17: /start handler (welcome + upsertUser); fixed dry-run init by injecting fake botInfo into Bot ctor (grammy refuses handleUpdate w/o it); test passes end-to-end. Chunk commit 4.4/5.1/5.2.
+LAST_TICK: 2026-05-14 00:42 — tick 19: /watch (list/add/off + slug validation) and /alerts on|off (safety='*'); 8-assert smoke covered every branch. Chunk commit 5.3/5.4/5.5.
 
 ## Product
 
@@ -87,9 +87,9 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 
 - [x] 5.1 bot/index.ts: grammy setup — tick 16. Dry-run mode (placeholder token "0000…:dry-run-no-token") when TELEGRAM_BOT_TOKEN absent; registers 5 handler modules (start/top/watch/alerts/help) + catch-all + bot.catch(); globalThis cache; exports {bot, botLive}.
 - [x] 5.2 bot/handlers/start.ts: /start → upsertUser + Markdown welcome menu — tick 17. Smoke at scripts/_test-bot-start.ts uses grammy api transformer to capture sendMessage; verifies both reply text and db user row.
-- [ ] 5.3 bot/handlers/top.ts: /top → fetches yields API, sends top-10 with inline buttons (Watch, Stake)
-- [ ] 5.4 bot/handlers/watch.ts: /watch <protocol> → adds subscription
-- [ ] 5.5 bot/handlers/alerts.ts: /alerts on|off → toggles safety alert subscription for user
+- [x] 5.3 bot/handlers/top.ts: /top → top-10 (TVL≥$1M, APY≤1000%) Markdown + InlineKeyboard (3 Watch buttons for unique projects + Open-list URL); also handles `watch:*` callback → upsertUser+addSubscription. tick 18, smoke at scripts/_test-bot-top.ts captured live data.
+- [x] 5.4 bot/handlers/watch.ts: /watch (list) | /watch <slug> (add) | /watch off <slug> (remove) — slug regex `^[a-z0-9][a-z0-9-]{0,40}$`, audited ✓ badge — tick 19
+- [x] 5.5 bot/handlers/alerts.ts: /alerts on|off|<empty> with state echo, threshold 20% baked in — tick 19
 - [ ] 5.6 bot/handlers/help.ts: /help
 - [ ] 5.7 lib/notify.ts: sendToUser(tgUserId, text, opts) using bot instance
   - Test: `npx tsx scripts/test-bot-handlers.ts` (use grammy's testing kit) — handlers respond correctly without real TG
