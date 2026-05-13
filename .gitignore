@@ -40,7 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Local DB
+# Local DB + cache
 data/*.db
 data/*.db-journal
+data/cache/
 .env.local
