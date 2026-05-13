@@ -32,6 +32,9 @@ function createBot(): Bot {
       : {
           // Dry-run: skip the auth round-trip to TG by faking botInfo.
           // grammy then accepts handleUpdate calls without bot.init().
+          // Cast to satisfy any UserFromGetMe field additions in future
+          // grammy/types versions — we only ever read this via handlers,
+          // never echo it back to TG.
           botInfo: {
             id: 0,
             is_bot: true,
@@ -42,7 +45,8 @@ function createBot(): Bot {
             supports_inline_queries: false,
             can_connect_to_business: false,
             has_main_web_app: false,
-          },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } as any,
         },
   );
 

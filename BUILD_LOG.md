@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-14 00:42 — tick 19: /watch (list/add/off + slug validation) and /alerts on|off (safety='*'); 8-assert smoke covered every branch. Chunk commit 5.3/5.4/5.5.
+LAST_TICK: 2026-05-14 00:47 — tick 20: /help + lib/notify.ts (dryrun-safe sendToUser/broadcast) + UNBLOCKED 5.8 webhook route (X-Telegram secret-token validation, dispatches to bot.handleUpdate). Phase 5 closes; npm run build all 7 routes green.
 
 ## Product
 
@@ -90,10 +90,9 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 - [x] 5.3 bot/handlers/top.ts: /top → top-10 (TVL≥$1M, APY≤1000%) Markdown + InlineKeyboard (3 Watch buttons for unique projects + Open-list URL); also handles `watch:*` callback → upsertUser+addSubscription. tick 18, smoke at scripts/_test-bot-top.ts captured live data.
 - [x] 5.4 bot/handlers/watch.ts: /watch (list) | /watch <slug> (add) | /watch off <slug> (remove) — slug regex `^[a-z0-9][a-z0-9-]{0,40}$`, audited ✓ badge — tick 19
 - [x] 5.5 bot/handlers/alerts.ts: /alerts on|off|<empty> with state echo, threshold 20% baked in — tick 19
-- [ ] 5.6 bot/handlers/help.ts: /help
-- [ ] 5.7 lib/notify.ts: sendToUser(tgUserId, text, opts) using bot instance
-  - Test: `npx tsx scripts/test-bot-handlers.ts` (use grammy's testing kit) — handlers respond correctly without real TG
-- [ ] [BLOCKED: needs TELEGRAM_BOT_TOKEN] 5.8 app/api/telegram/webhook/route.ts: receives webhook, dispatches to bot
+- [x] 5.6 bot/handlers/help.ts: /help — Markdown listing of all commands + non-custodial reminder — tick 20
+- [x] 5.7 lib/notify.ts: sendToUser + broadcast; dryrun mode logs instead of crashing; 403/blocked/deactivated → soft-skip; smoke at scripts/_test-help-notify.ts — tick 20
+- [x] 5.8 app/api/telegram/webhook/route.ts: POST validates `x-telegram-bot-api-secret-token` header against TELEGRAM_WEBHOOK_SECRET, dispatches to bot.handleUpdate; refuses with 200+error when not configured (avoids TG retry loops); GET probe — tick 20. Runtime requires TELEGRAM_BOT_TOKEN + TELEGRAM_WEBHOOK_SECRET to actually deliver messages.
 
 ## Phase 6 — Alert delivery cron
 
