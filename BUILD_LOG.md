@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-13 23:30 — tick 3: lib/cache.ts done (FS-backed TTL cache); chunk commit for 1.1/1.2/1.3.
+LAST_TICK: 2026-05-13 23:41 — tick 6: landing page rewritten (hero/features/how-it-works/footer), dark theme baseline; chunk commit 1.4/1.5/2.1.
 
 ## Product
 
@@ -60,14 +60,12 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 - [x] 1.2 lib/defillama.ts: add fetchPoolHistory(poolId) using /chart/{poolId} — tick 2, returned 223 points for top pool
   - Note: smoke test at scripts/_test-defillama.ts (kept for reuse).
 - [x] 1.3 lib/cache.ts: simple FS-backed cache with TTL (default 1h) — tick 3, smoke-test passes (hit/miss/expire/clear)
-- [ ] 1.4 app/api/yields/route.ts: GET → top 30 yields filtered by minTvl, sorted by APY
-  - Test: `curl -s localhost:3000/api/yields | jq '.[0:3]'` returns array
-- [ ] 1.5 app/api/yields/[poolId]/route.ts: GET pool detail + 30d history
-  - Test: curl returns object with `apy`, `history` array
+- [x] 1.4 app/api/yields/route.ts: GET → top 30 yields filtered by minTvl, sorted by APY — tick 4, supports `?minTvl=&limit=&stableOnly=&maxApy=`, cached 1h via FS cache
+- [x] 1.5 app/api/yields/[poolId]/route.ts: GET pool detail + 30d history — tick 5, verified live (yearn USDC: APY 154%, 331 history points)
 
 ## Phase 2 — Web UI
 
-- [ ] 2.1 app/page.tsx: landing — what the product does + CTA to /yields and CTA to TG bot
+- [x] 2.1 app/page.tsx: landing — hero+CTAs+features+how-it-works+footer; dark theme; tsc clean — tick 6
 - [ ] 2.2 app/yields/page.tsx: server component — table of top 30 yields
 - [ ] 2.3 components/YieldTable.tsx: client component with sortable cols + filters (minTvl, stable-only, audited-only)
 - [ ] 2.4 components/Sparkline.tsx: 30d APY trend (recharts)
