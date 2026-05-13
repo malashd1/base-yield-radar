@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-13 23:41 — tick 6: landing page rewritten (hero/features/how-it-works/footer), dark theme baseline; chunk commit 1.4/1.5/2.1.
+LAST_TICK: 2026-05-13 23:56 — tick 9: Sparkline component (recharts AreaChart, gradient fill, tooltip); chunk commit 2.2/2.3/2.4.
 
 ## Product
 
@@ -66,9 +66,9 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 ## Phase 2 — Web UI
 
 - [x] 2.1 app/page.tsx: landing — hero+CTAs+features+how-it-works+footer; dark theme; tsc clean — tick 6
-- [ ] 2.2 app/yields/page.tsx: server component — table of top 30 yields
-- [ ] 2.3 components/YieldTable.tsx: client component with sortable cols + filters (minTvl, stable-only, audited-only)
-- [ ] 2.4 components/Sparkline.tsx: 30d APY trend (recharts)
+- [x] 2.2 app/yields/page.tsx: server component — table of top 30 yields — tick 7, live curl returned 200 with aerodrome/uniswap names; lib/format.ts added (fmtUsd, fmtApy, risk colors)
+- [x] 2.3 components/YieldTable.tsx: sortable cols (project/symbol/TVL/APY) + filters (TVL presets, stable, audited) — tick 8, "audited" backed by hardcoded set in lib/protocols.ts (aerodrome, morpho, yearn, aave, compound, …)
+- [x] 2.4 components/Sparkline.tsx: 30d APY trend (recharts AreaChart with gradient fill, optional tooltip, graceful "not enough data" fallback) — tick 9, tsc clean
 - [ ] 2.5 app/protocols/[slug]/page.tsx: protocol page with chart + pools list
 - [ ] 2.6 components/Header.tsx + Footer.tsx
   - Test: `npm run build` passes; `curl localhost:3000/yields` returns 200 HTML containing protocol names
