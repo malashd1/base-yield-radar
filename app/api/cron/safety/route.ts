@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { runSnapshot } from "@/lib/snapshot";
-import { detectTvlDrops, detectApySpikes } from "@/lib/safety";
+import {
+  detectTvlDrops,
+  detectApySpikes,
+  type TvlDropAlert,
+  type ApySpikeAlert,
+} from "@/lib/safety";
 import { recordAlert, db } from "@/lib/db";
+import { broadcast } from "@/lib/notify";
+import { fmtUsd, fmtApy } from "@/lib/format";
 
 /**
  * GET /api/cron/safety
@@ -54,25 +61,56 @@ export async function GET(req: Request) {
        WHERE kind = ? AND created_at > ? AND payload_json LIKE ?
        LIMIT 1`,
     );
-    let newAlerts = 0;
+    const newDrops: TvlDropAlert[] = [];
+    const newSpikes: ApySpikeAlert[] = [];
     for (const d of drops) {
       const pat = `%"poolId":"${d.poolId}"%`;
-      const dup = existsStmt.get("tvl_drop", dedupeWindow, pat);
-      if (!dup) {
+      if (!existsStmt.get("tvl_drop", dedupeWindow, pat)) {
         recordAlert("tvl_drop", d);
-        newAlerts++;
+        newDrops.push(d);
       }
     }
     for (const s of spikes) {
       const pat = `%"poolId":"${s.poolId}"%`;
-      const dup = existsStmt.get("apy_spike", dedupeWindow, pat);
-      if (!dup) {
+      if (!existsStmt.get("apy_spike", dedupeWindow, pat)) {
         recordAlert("apy_spike", s);
-        newAlerts++;
+        newSpikes.push(s);
+      }
+    }
+    const newAlerts = newDrops.length + newSpikes.length;
+
+    // 4. Notify safety subscribers (kind='safety', target='*').
+    let notified = { sent: 0, skipped: 0, failed: 0 };
+    if (newAlerts > 0) {
+      const subs = db
+        .prepare(
+          "SELECT DISTINCT tg_user_id FROM subscriptions WHERE kind = 'safety' AND target = '*'",
+        )
+        .all() as Array<{ tg_user_id: number }>;
+
+      if (subs.length > 0) {
+        const lines: string[] = ["⚠️ *Safety alerts on Base*", ""];
+        for (const d of newDrops) {
+          lines.push(
+            `• TVL drop on pool \`${d.poolId.slice(0, 8)}…\`: ${fmtUsd(d.fromTvl)} → ${fmtUsd(d.toTvl)} (-${d.dropPct}%)`,
+          );
+        }
+        for (const s of newSpikes) {
+          lines.push(
+            `• APY spike on pool \`${s.poolId.slice(0, 8)}…\`: ${fmtApy(s.baselineApy)} → ${fmtApy(s.latestApy)} (×${s.multiplier})`,
+          );
+        }
+        lines.push("", "_Always verify before reacting. Not financial advice._");
+        const text = lines.join("\n");
+
+        notified = await broadcast(
+          subs.map((s) => s.tg_user_id),
+          text,
+          { parseMode: "Markdown", disableLinkPreview: true },
+        );
       }
     }
 
-    // 4. Done. (Notification dispatch added in 6.2.)
     return NextResponse.json({
       ok: true,
       tookMs: Date.now() - startedAt,
@@ -86,6 +124,7 @@ export async function GET(req: Request) {
         apySpikes: spikes.length,
       },
       newAlerts,
+      notified,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

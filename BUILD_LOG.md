@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-14 00:47 — tick 20: /help + lib/notify.ts (dryrun-safe sendToUser/broadcast) + UNBLOCKED 5.8 webhook route (X-Telegram secret-token validation, dispatches to bot.handleUpdate). Phase 5 closes; npm run build all 7 routes green.
+LAST_TICK: 2026-05-14 00:59 — tick 22: lib/zeroex.ts (0x v2 quote + Permit2 + 25bps affiliate fee, stub mode for dev) + /api/quote route. Bumped tsconfig target ES2017→ES2020 for BigInt literals. Live curl confirmed stub shape and 400-on-bad-input. Phase 7 closes; chunk commit 6.1/6.2/7.1/7.2.
 
 ## Product
 
@@ -96,17 +96,13 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 
 ## Phase 6 — Alert delivery cron
 
-- [ ] 6.1 app/api/cron/digest/route.ts: hourly digest — for each user with `digest=on`, send top-5 changes
-  - Test: insert mock user + run endpoint with TELEGRAM_BOT_TOKEN unset → should log "would send" instead of crashing
-- [ ] 6.2 Wire safety alerts (Phase 4.4) to notify subscribers from db
-  - Test: insert mock subscription + simulate alert → notify called with right user
+- [x] 6.1 app/api/cron/digest/route.ts: top-5 audited yields (TVL≥$1M, APY≤200%) broadcast to subscriptions(kind='digest', target='*'); cached 30min — tick 21
+- [x] 6.2 Safety route extended: after recordAlert, broadcast formatted message to safety subscribers (kind='safety', target='*'); response includes notified.{sent,skipped,failed} — tick 21
 
 ## Phase 7 — 0x integration
 
-- [ ] 7.1 lib/zeroex.ts: getQuote(sellToken, buyToken, sellAmount, taker) using 0x v2 API + affiliate fee
-  - If `ZEROEX_API_KEY` missing → return stub quote with realistic shape, log "STUB MODE"
-  - Test: getQuote(USDC→WETH, 100 USDC) returns quote object
-- [ ] 7.2 app/api/quote/route.ts: GET wrapper
+- [x] 7.1 lib/zeroex.ts: 0x v2 Permit2 quote with 25bps affiliate fee (when AFFILIATE_FEE_RECIPIENT set); stub mode returns realistic-shape mock when no key — tick 22, USDC→WETH stub returns full quote shape
+- [x] 7.2 app/api/quote/route.ts: GET wrapper with required-param + positive-bigint validation, 429-aware error handling — tick 22, live curl: stub OK (200) + bad sellAmount (400)
 
 ## Phase 8 — Wallet + Stake (Morpho USDC vault on Base)
 
