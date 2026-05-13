@@ -9,7 +9,7 @@
 ---
 
 STATUS: IN_PROGRESS
-LAST_TICK: 2026-05-13 23:14 — tick 1: closed Phase 0 (env validator + verified gitkeep/gitignore/git-init).
+LAST_TICK: 2026-05-13 23:30 — tick 3: lib/cache.ts done (FS-backed TTL cache); chunk commit for 1.1/1.2/1.3.
 
 ## Product
 
@@ -56,11 +56,10 @@ TG bot + web app for Base yield discovery + safety alerts + 1-click stake.
 
 ## Phase 1 — DeFiLlama integration (no key needed)
 
-- [ ] 1.1 lib/defillama.ts: typed fetcher for /pools, filter chain="Base"
-  - Test: `npx tsx -e "import('./lib/defillama').then(m => m.fetchBasePools().then(p => console.log(p.length)))"` prints number > 0
-- [ ] 1.2 lib/defillama.ts: add fetchPoolHistory(poolId) using /chart/{poolId}
-  - Test: same pattern, prints length of history array
-- [ ] 1.3 lib/cache.ts: simple FS-backed cache with TTL (default 1h)
+- [x] 1.1 lib/defillama.ts: typed fetcher for /pools, filter chain="Base" — tick 2, returned 3133 pools
+- [x] 1.2 lib/defillama.ts: add fetchPoolHistory(poolId) using /chart/{poolId} — tick 2, returned 223 points for top pool
+  - Note: smoke test at scripts/_test-defillama.ts (kept for reuse).
+- [x] 1.3 lib/cache.ts: simple FS-backed cache with TTL (default 1h) — tick 3, smoke-test passes (hit/miss/expire/clear)
 - [ ] 1.4 app/api/yields/route.ts: GET → top 30 yields filtered by minTvl, sorted by APY
   - Test: `curl -s localhost:3000/api/yields | jq '.[0:3]'` returns array
 - [ ] 1.5 app/api/yields/[poolId]/route.ts: GET pool detail + 30d history
