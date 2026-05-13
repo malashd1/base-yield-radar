@@ -1,7 +1,24 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { fetchBasePools, sortByApy } from "@/lib/defillama";
 import { withCache } from "@/lib/cache";
 import YieldTable, { type YieldRow } from "@/components/YieldTable";
+
+export const metadata: Metadata = {
+  title: "Top yields",
+  description:
+    "Sortable, filterable list of the top yield pools on Base — Aerodrome, Morpho, Yearn, and more. Refreshed hourly.",
+  openGraph: {
+    title: "Top yields on Base",
+    images: [
+      {
+        url: "/api/og?title=Top+yields+on+Base&subtitle=Filter+by+TVL%2C+stable%2C+audited",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+};
 
 export const revalidate = 3600;
 export const dynamic = "force-dynamic";

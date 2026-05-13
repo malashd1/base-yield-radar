@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   fetchBasePools,
@@ -9,6 +10,29 @@ import { withCache } from "@/lib/cache";
 import { fmtUsd, fmtApy, apyRiskClass } from "@/lib/format";
 import { isAuditedProtocol } from "@/lib/protocols";
 import Sparkline from "@/components/Sparkline";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const pretty = decodeURIComponent(slug).replace(/-/g, " ");
+  return {
+    title: pretty,
+    description: `Yield pools and 30-day APY history for ${pretty} on Base.`,
+    openGraph: {
+      title: `${pretty} on Base`,
+      images: [
+        {
+          url: `/api/og?title=${encodeURIComponent(pretty)}&subtitle=${encodeURIComponent("Yields & history on Base")}`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+  };
+}
 
 export const revalidate = 3600;
 export const dynamic = "force-dynamic";
