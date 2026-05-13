@@ -43,5 +43,7 @@ next-env.d.ts
 # Local DB + cache
 data/*.db
 data/*.db-journal
+data/*.db-wal
+data/*.db-shm
 data/cache/
 .env.local
