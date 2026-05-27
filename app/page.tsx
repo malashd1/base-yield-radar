@@ -40,15 +40,13 @@ export default function Home() {
               Browse top yields
               <span aria-hidden>→</span>
             </Link>
-            <a
-              href="https://t.me/Basedefi_bot"
-              target="_blank"
-              rel="noreferrer noopener"
+            <Link
+              href="/alerts"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-5 py-3 text-sm font-medium text-white/90 transition hover:bg-white/[0.06]"
             >
-              Get the Telegram bot
-              <span className="text-xs opacity-60">↗</span>
-            </a>
+              Wallet-aware alerts
+              <span className="text-xs opacity-60">→</span>
+            </Link>
           </div>
           <p className="mt-4 text-xs text-white/40">
             Non-custodial. We never touch your funds.

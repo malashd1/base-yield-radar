@@ -17,14 +17,7 @@ export default function Header() {
 
         <nav className="flex items-center gap-1 text-sm">
           <NavLink href="/yields">Yields</NavLink>
-          <a
-            href="https://t.me/Basedefi_bot"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="hidden rounded-full px-3 py-1.5 text-white/60 transition hover:bg-white/[0.05] hover:text-white sm:inline-flex sm:items-center sm:gap-1"
-          >
-            Telegram <span className="text-[10px] opacity-60">↗</span>
-          </a>
+          <NavLink href="/alerts">Alerts</NavLink>
           <div className="ml-1 sm:ml-2">
             <ConnectButton />
           </div>
