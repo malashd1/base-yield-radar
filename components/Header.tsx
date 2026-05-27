@@ -17,7 +17,7 @@ export default function Header() {
 
         <nav className="flex items-center gap-1 text-sm">
           <NavLink href="/yields">Yields</NavLink>
-          <NavLink href="/alerts">Alerts</NavLink>
+          <NavLink href="/alerts">TG Alerts bot</NavLink>
           <div className="ml-1 sm:ml-2">
             <ConnectButton />
           </div>

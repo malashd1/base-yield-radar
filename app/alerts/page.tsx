@@ -40,33 +40,35 @@ export default function AlertsPage() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#5bd8ff] opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#5bd8ff]" />
             </span>
-            Telegram bot · live on Base mainnet
+            Companion to the yields monitor
           </div>
           <h1 className="mt-6 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl">
-            Alerts that fire only when{" "}
-            <span className="text-gradient">your wallet</span> is at risk.
+            A quiet Telegram bot that watches{" "}
+            <span className="text-gradient">your wallet</span>.
           </h1>
           <p className="mt-6 max-w-2xl text-base text-white/65 sm:text-lg">
-            Most DeFi alert bots scream every time a random pool wiggles. Ours
-            watches the chain for the vaults <em>you actually hold</em> — and
-            stays silent the rest of the time.
+            The monitor is the main tool — you browse, you pick, you stake.
+            This bot is the alarm clock on top: link a Base wallet and it pings
+            you in Telegram only when a vault <em>you actually hold</em> trips a
+            safety check.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
+            <Link
+              href="/yields"
+              className="btn-accent inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
+            >
+              Browse top yields
+              <span aria-hidden>→</span>
+            </Link>
             <a
               href={BOT_URL}
               target="_blank"
               rel="noreferrer noopener"
-              className="btn-accent inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold"
-            >
-              Open @Basedefi_bot
-              <span aria-hidden>↗</span>
-            </a>
-            <Link
-              href="/yields"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-5 py-3 text-sm font-medium text-white/90 transition hover:bg-white/[0.06]"
             >
-              Browse yields first
-            </Link>
+              Open @Basedefi_bot
+              <span className="text-xs opacity-60">↗</span>
+            </a>
           </div>
           <p className="mt-4 text-xs text-white/40">
             Non-custodial. No signature required to track. We never touch your
@@ -177,17 +179,28 @@ export default function AlertsPage() {
       <section>
         <div className="mx-auto max-w-3xl px-6 py-20 text-center">
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Stop checking. <span className="text-gradient">Start sleeping.</span>
+            Pick a vault, <span className="text-gradient">set the alarm.</span>
           </h2>
+          <p className="mt-3 text-sm text-white/55">
+            The monitor finds the yields. The bot watches them after you click
+            stake.
+          </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/yields"
+              className="btn-accent inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
+            >
+              Browse top yields
+              <span aria-hidden>→</span>
+            </Link>
             <a
               href={BOT_URL}
               target="_blank"
               rel="noreferrer noopener"
-              className="btn-accent inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-6 py-3 text-sm font-medium text-white/90 transition hover:bg-white/[0.06]"
             >
               Open @Basedefi_bot
-              <span aria-hidden>↗</span>
+              <span className="text-xs opacity-60">↗</span>
             </a>
           </div>
           <p className="mt-6 text-xs text-white/40">

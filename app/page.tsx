@@ -44,7 +44,7 @@ export default function Home() {
               href="/alerts"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] px-5 py-3 text-sm font-medium text-white/90 transition hover:bg-white/[0.06]"
             >
-              Wallet-aware alerts
+              TG Alerts bot
               <span className="text-xs opacity-60">→</span>
             </Link>
           </div>
