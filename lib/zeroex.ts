@@ -1,7 +1,12 @@
 /**
- * 0x Swap API client (v2, Permit2 endpoint).
+ * 0x Swap API client (v2, AllowanceHolder endpoint).
  *
  * Docs: https://0x.org/docs/api
+ *
+ * We use the AllowanceHolder endpoint (not Permit2) because the flow is simpler:
+ * standard ERC-20 approve to allowanceTarget, then send the tx. Permit2 needs
+ * an EIP-712 signature step which adds wallet UX friction without giving us
+ * meaningful gas savings at v1 scale.
  *
  * In stub mode (no ZEROEX_API_KEY) returns a deterministic fake quote with the
  * real response shape. This lets the rest of the app develop without burning
@@ -17,8 +22,11 @@
 import { env, features } from "@/lib/env";
 
 const BASE_CHAIN_ID = 8453;
-const QUOTE_URL = "https://api.0x.org/swap/permit2/quote";
+const QUOTE_URL = "https://api.0x.org/swap/allowance-holder/quote";
 const AFFILIATE_FEE_BPS = 25; // 0.25%
+/** Native ETH placeholder used by 0x for native-token swaps. */
+export const NATIVE_TOKEN_SENTINEL =
+  "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 
 // Common Base token addresses (just for stub-mode shape sanity).
 export const BASE_TOKENS = {
@@ -122,7 +130,7 @@ export async function getQuote(p: QuoteParams): Promise<ZeroExQuote> {
     buyAmount?: string;
     sellAmount?: string;
     price?: string;
-    permit2?: { eip712?: { domain?: { verifyingContract?: string } } };
+    issues?: { allowance?: { spender?: string } };
   };
 
   // 0x v2 nests tx data under `.transaction`.
@@ -130,9 +138,9 @@ export async function getQuote(p: QuoteParams): Promise<ZeroExQuote> {
   if (!tx) throw new Error("0x quote: missing transaction in response");
 
   return {
-    allowanceTarget:
-      json.permit2?.eip712?.domain?.verifyingContract ??
-      "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+    // AllowanceHolder spender is reported in issues.allowance.spender when an
+    // approval is needed; otherwise the tx-target itself accepts pre-approved funds.
+    allowanceTarget: json.issues?.allowance?.spender ?? tx.to,
     to: tx.to,
     data: tx.data,
     value: tx.value ?? "0",

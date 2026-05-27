@@ -23,6 +23,8 @@ export interface DefiLlamaPool {
   apy: number | null;
   apyBase: number | null;
   apyReward: number | null;
+  apyMean30d?: number | null; // 30-day mean APY — better signal than spot APY
+  apyPct30D?: number | null; // % change over last 30 days
   rewardTokens: string[] | null;
   underlyingTokens: string[] | null;
   poolMeta: string | null;

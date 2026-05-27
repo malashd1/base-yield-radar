@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import StakeForm from "@/components/StakeForm";
+import StakeFlow from "@/components/StakeFlow";
 import { MORPHO_USDC_VAULT_META } from "@/lib/morpho";
 
 export const dynamic = "force-static"; // page is fully derived from constants
@@ -46,7 +46,7 @@ export default async function StakePage({
         </header>
 
         <div className="mt-6">
-          <StakeForm />
+          <StakeFlow />
         </div>
 
         <p className="mt-6 text-xs text-white/40">

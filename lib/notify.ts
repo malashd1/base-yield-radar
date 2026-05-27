@@ -11,9 +11,20 @@
 
 import { bot, botLive } from "@/bot";
 
+/** Minimal inline-keyboard shape — matches Telegram's API. */
+export interface InlineButton {
+  text: string;
+  /** External URL — opens in browser. */
+  url?: string;
+  /** Callback payload — routed to bot.callbackQuery handlers. */
+  callback_data?: string;
+}
+
 export interface SendOptions {
   parseMode?: "Markdown" | "MarkdownV2" | "HTML";
   disableLinkPreview?: boolean;
+  /** 2D array — each inner array is one row of buttons. */
+  inlineKeyboard?: InlineButton[][];
 }
 
 export interface SendResult {
@@ -40,6 +51,13 @@ export async function sendToUser(
       parse_mode: opts.parseMode,
       link_preview_options: opts.disableLinkPreview
         ? { is_disabled: true }
+        : undefined,
+      // grammy's InlineKeyboardButton is a discriminated union (url XOR
+       // callback_data XOR …). We accept the looser InlineButton shape from
+       // callers and let Telegram's API validate at runtime.
+       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       reply_markup: opts.inlineKeyboard
+        ? ({ inline_keyboard: opts.inlineKeyboard } as any)
         : undefined,
     });
     return { ok: true, outcome: "sent" };

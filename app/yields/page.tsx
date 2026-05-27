@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { fetchBasePools, sortByApy } from "@/lib/defillama";
 import { withCache } from "@/lib/cache";
+import { isStablePool } from "@/lib/tokens";
 import YieldTable, { type YieldRow } from "@/components/YieldTable";
 
 export const metadata: Metadata = {
@@ -23,13 +24,18 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 export const dynamic = "force-dynamic";
 
-const PAGE_MIN_TVL = 0; // YieldTable applies its own TVL filter
-const PAGE_MAX_APY = 10_000; // hard cap to drop obvious garbage server-side
-const PAGE_LIMIT = 100; // give the client room to filter
+// Server-side cuts so the client filters have something meaningful to chew on.
+// Without minTvl, "top 100 by APY" is dominated by tiny emission-driven farms.
+// We need a fairly large limit so low-APY stablecoin pools also make it into
+// the dataset (otherwise the "stable only" filter looks broken — the real
+// stable yields like Aave USDC live at 3-8% APY, well below the farm spike zone).
+const PAGE_MIN_TVL = 100_000;
+const PAGE_MAX_APY = 5_000;
+const PAGE_LIMIT = 800;
 
 async function getYields(): Promise<YieldRow[]> {
   return withCache(
-    `page:yields:v2:limit${PAGE_LIMIT}:max${PAGE_MAX_APY}`,
+    `page:yields:v6:tvl${PAGE_MIN_TVL}:limit${PAGE_LIMIT}:max${PAGE_MAX_APY}`,
     3600,
     async () => {
       const pools = await fetchBasePools({ minTvlUsd: PAGE_MIN_TVL });
@@ -46,9 +52,15 @@ async function getYields(): Promise<YieldRow[]> {
           apy: p.apy,
           apyBase: p.apyBase,
           apyReward: p.apyReward,
-          stablecoin: p.stablecoin,
+          // DeFiLlama's stablecoin flag is unreliable (e.g. marks USDC-AVAIL as
+          // stable). Use our own ticker-based classifier instead.
+          stablecoin: isStablePool(p.symbol),
           ilRisk: p.ilRisk,
           exposure: p.exposure,
+          predictedClass: p.predictions?.predictedClass ?? null,
+          apyMean30d: p.apyMean30d ?? null,
+          apyPct30D: p.apyPct30D ?? null,
+          underlyingTokens: p.underlyingTokens ?? null,
         }));
     },
   );
@@ -77,13 +89,9 @@ export default async function YieldsPage() {
             <h1 className="mt-2 text-3xl font-semibold tracking-tight">
               Top yields on Base
             </h1>
-            <p className="mt-1 text-sm text-white/60">
-              Sorted by APY · server-capped at 10,000% to drop garbage ·
-              refreshed hourly
+            <p className="mt-1 text-sm text-white/55">
+              Sorted by APY · refreshed hourly · incentive farms hidden by default
             </p>
-          </div>
-          <div className="text-xs text-white/40">
-            data: defillama.com/yields
           </div>
         </header>
 

@@ -18,7 +18,9 @@ import { env, features } from "@/lib/env";
 import { registerStart } from "./handlers/start";
 import { registerTop } from "./handlers/top";
 import { registerWatch } from "./handlers/watch";
+import { registerWallet } from "./handlers/wallet";
 import { registerAlerts } from "./handlers/alerts";
+import { registerCallbacks } from "./handlers/callbacks";
 import { registerHelp } from "./handlers/help";
 
 const TOKEN_PLACEHOLDER = "0000000000:dry-run-no-token";
@@ -54,8 +56,10 @@ function createBot(): Bot {
   registerStart(b);
   registerTop(b);
   registerWatch(b);
+  registerWallet(b);
   registerAlerts(b);
   registerHelp(b);
+  registerCallbacks(b);
 
   // Generic catch-all so unknown commands don't silently die.
   b.on("message:text", async (ctx) => {

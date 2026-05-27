@@ -71,6 +71,42 @@ function openDb() {
     );
     CREATE INDEX IF NOT EXISTS idx_alerts_pending
       ON alerts(sent_to_user_id) WHERE sent_at IS NULL;
+
+    -- Wallets the user has linked. We only need the address — no signature,
+    -- no proof of ownership. Watching someone else's wallet is allowed by design.
+    CREATE TABLE IF NOT EXISTS wallets (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      tg_user_id   INTEGER NOT NULL,
+      address      TEXT NOT NULL,        -- always stored lowercased
+      label        TEXT,
+      added_at     INTEGER NOT NULL,
+      UNIQUE(tg_user_id, address),
+      FOREIGN KEY(tg_user_id) REFERENCES users(tg_user_id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_wallets_addr ON wallets(address);
+
+    -- Most-recent known balance of each (wallet, pool) pair. Refreshed by the
+    -- positions cron. A row only exists if balance was non-zero at the last
+    -- scan — zero balances are deleted so we don't grow unbounded.
+    CREATE TABLE IF NOT EXISTS positions (
+      address       TEXT NOT NULL,
+      pool_id       TEXT NOT NULL,
+      balance_raw   TEXT NOT NULL,        -- bigint as string, in token base units
+      asset_usd     REAL,                 -- USD-value at scan time (nullable)
+      last_seen_ts  INTEGER NOT NULL,
+      PRIMARY KEY (address, pool_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_positions_pool ON positions(pool_id);
+
+    -- User-set mutes (per pool). until_ts = NULL means muted indefinitely.
+    CREATE TABLE IF NOT EXISTS mutes (
+      tg_user_id   INTEGER NOT NULL,
+      pool_id      TEXT NOT NULL,
+      until_ts     INTEGER,
+      created_at   INTEGER NOT NULL,
+      PRIMARY KEY (tg_user_id, pool_id),
+      FOREIGN KEY(tg_user_id) REFERENCES users(tg_user_id) ON DELETE CASCADE
+    );
   `);
 
   return _db;
@@ -186,4 +222,146 @@ export function recordAlert(
     Math.floor(Date.now() / 1000),
   );
   return info.lastInsertRowid as number;
+}
+
+// ---------- wallets ----------
+
+export interface WalletRow {
+  id: number;
+  tg_user_id: number;
+  address: string;
+  label: string | null;
+  added_at: number;
+}
+
+const addWalletStmt = db.prepare(
+  `INSERT OR IGNORE INTO wallets (tg_user_id, address, label, added_at)
+   VALUES (?, ?, ?, ?)`,
+);
+export function addWallet(
+  tgUserId: number,
+  address: string,
+  label?: string,
+): boolean {
+  const info = addWalletStmt.run(
+    tgUserId,
+    address.toLowerCase(),
+    label ?? null,
+    Math.floor(Date.now() / 1000),
+  );
+  return info.changes > 0;
+}
+
+const removeWalletStmt = db.prepare(
+  `DELETE FROM wallets WHERE tg_user_id = ? AND address = ?`,
+);
+export function removeWallet(tgUserId: number, address: string): boolean {
+  const info = removeWalletStmt.run(tgUserId, address.toLowerCase());
+  return info.changes > 0;
+}
+
+const listUserWalletsStmt = db.prepare(
+  `SELECT * FROM wallets WHERE tg_user_id = ? ORDER BY added_at`,
+);
+export function listUserWallets(tgUserId: number): WalletRow[] {
+  return listUserWalletsStmt.all(tgUserId) as WalletRow[];
+}
+
+const allWalletsStmt = db.prepare(
+  `SELECT * FROM wallets ORDER BY added_at`,
+);
+export function allWallets(): WalletRow[] {
+  return allWalletsStmt.all() as WalletRow[];
+}
+
+// ---------- positions ----------
+
+export interface PositionRow {
+  address: string;
+  pool_id: string;
+  balance_raw: string;
+  asset_usd: number | null;
+  last_seen_ts: number;
+}
+
+const upsertPositionStmt = db.prepare(
+  `INSERT INTO positions (address, pool_id, balance_raw, asset_usd, last_seen_ts)
+   VALUES (?, ?, ?, ?, ?)
+   ON CONFLICT(address, pool_id) DO UPDATE SET
+     balance_raw  = excluded.balance_raw,
+     asset_usd    = excluded.asset_usd,
+     last_seen_ts = excluded.last_seen_ts`,
+);
+export function upsertPosition(
+  address: string,
+  poolId: string,
+  balanceRaw: bigint,
+  assetUsd: number | null,
+  ts: number = Math.floor(Date.now() / 1000),
+): void {
+  upsertPositionStmt.run(
+    address.toLowerCase(),
+    poolId,
+    balanceRaw.toString(),
+    assetUsd,
+    ts,
+  );
+}
+
+const deletePositionStmt = db.prepare(
+  `DELETE FROM positions WHERE address = ? AND pool_id = ?`,
+);
+export function deletePosition(address: string, poolId: string): void {
+  deletePositionStmt.run(address.toLowerCase(), poolId);
+}
+
+const walletsHoldingPoolStmt = db.prepare(
+  `SELECT positions.address, positions.balance_raw, positions.asset_usd,
+          wallets.tg_user_id, wallets.label
+     FROM positions
+     JOIN wallets ON wallets.address = positions.address
+    WHERE positions.pool_id = ?`,
+);
+export interface WalletHolding {
+  address: string;
+  balance_raw: string;
+  asset_usd: number | null;
+  tg_user_id: number;
+  label: string | null;
+}
+export function walletsHoldingPool(poolId: string): WalletHolding[] {
+  return walletsHoldingPoolStmt.all(poolId) as WalletHolding[];
+}
+
+// ---------- mutes ----------
+
+const addMuteStmt = db.prepare(
+  `INSERT OR REPLACE INTO mutes (tg_user_id, pool_id, until_ts, created_at)
+   VALUES (?, ?, ?, ?)`,
+);
+export function mutePool(
+  tgUserId: number,
+  poolId: string,
+  untilTs: number | null = null,
+): void {
+  addMuteStmt.run(tgUserId, poolId, untilTs, Math.floor(Date.now() / 1000));
+}
+
+const isMutedStmt = db.prepare(
+  `SELECT until_ts FROM mutes WHERE tg_user_id = ? AND pool_id = ?`,
+);
+export function isPoolMuted(tgUserId: number, poolId: string): boolean {
+  const row = isMutedStmt.get(tgUserId, poolId) as
+    | { until_ts: number | null }
+    | undefined;
+  if (!row) return false;
+  if (row.until_ts == null) return true;
+  return row.until_ts > Math.floor(Date.now() / 1000);
+}
+
+const removeMuteStmt = db.prepare(
+  `DELETE FROM mutes WHERE tg_user_id = ? AND pool_id = ?`,
+);
+export function unmutePool(tgUserId: number, poolId: string): boolean {
+  return removeMuteStmt.run(tgUserId, poolId).changes > 0;
 }

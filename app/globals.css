@@ -1,19 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050608;
-  --foreground: #ededed;
+  --background: #07090f;
+  --foreground: #e7ecf3;
+  --surface: rgba(255, 255, 255, 0.03);
+  --surface-strong: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --accent: #5bd8ff;
+  --accent-strong: #38bdf8;
+  --accent-glow: 91, 216, 255;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 50% -10%,
+      rgba(91, 216, 255, 0.08),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 20%,
+      rgba(168, 85, 247, 0.05),
+      transparent 70%
+    ),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle glow used on primary CTAs and the connected-wallet pill. */
+.glow-accent {
+  box-shadow:
+    0 0 0 1px rgba(var(--accent-glow), 0.35),
+    0 8px 32px -8px rgba(var(--accent-glow), 0.45);
+}
+
+.text-gradient {
+  background: linear-gradient(
+    90deg,
+    #5bd8ff 0%,
+    #7cb9ff 45%,
+    #c084fc 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Smooth hover for cyan accent buttons. */
+.btn-accent {
+  background: linear-gradient(180deg, #5bd8ff 0%, #38bdf8 100%);
+  color: #061018;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+.btn-accent:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 24px -4px rgba(var(--accent-glow), 0.7);
+}
+.btn-accent:active {
+  transform: translateY(1px);
 }
