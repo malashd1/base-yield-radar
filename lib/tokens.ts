@@ -112,7 +112,9 @@ export function splitPoolSymbol(symbol: string): string[] {
     .filter(Boolean);
 }
 
-/** Link to a DexScreener search page for a ticker. Works for most Base tokens. */
+/** Link to a DexScreener search page for a ticker. Fallback when we don't have
+ *  a contract address — search lands the user on a multi-chain disambiguation
+ *  page instead of the exact token. */
 export function dexScreenerSearchUrl(symbol: string): string {
   return `https://dexscreener.com/search?q=${encodeURIComponent(symbol)}`;
 }
