@@ -146,6 +146,7 @@ export function resolvePoolLink(
       break;
     case "balancer-v2":
     case "balancer-v3":
+      // Balancer lists Base pools on a single filtered page — close enough.
       return {
         href: "https://balancer.fi/pools?networks=BASE",
         kind: "protocol",
