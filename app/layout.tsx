@@ -37,6 +37,12 @@ export const metadata: Metadata = {
     description: "Best yields on Base. Without the rugs.",
     images: ["/api/og"],
   },
+  // Project verification: Talent Protocol expects this exact meta on the root
+  // page to confirm we own the domain claimed in the Talent app.
+  other: {
+    "talentapp:project_verification":
+      "173987e10278285fb27baa43f7c442ce65adfa74e63626ce5227f0f91ccf97f295e4a4402fc86d171f21a0dea96c09c115ff2f864fbe4dbf860ec65b722315e2",
+  },
 };
 
 export default function RootLayout({
