@@ -1,4 +1,4 @@
-/** Pretty number formatters used across the UI. */
+/** Pretty number formatters used across the UI (compact + percentage). */
 
 const COMPACT = new Intl.NumberFormat("en", {
   notation: "compact",
