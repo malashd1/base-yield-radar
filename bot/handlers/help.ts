@@ -1,5 +1,6 @@
 import type { Bot } from "grammy";
 
+// Kept short — Telegram clients render Markdown lists best when each item is one line.
 const HELP = `*Base Yield Radar — commands*
 
 */start* — register & show menu
