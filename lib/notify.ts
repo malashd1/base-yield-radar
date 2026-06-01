@@ -11,7 +11,8 @@
 
 import { bot, botLive } from "@/bot";
 
-/** Minimal inline-keyboard shape — matches Telegram's API. */
+/** Minimal inline-keyboard shape — matches Telegram's Bot API InlineKeyboardButton
+ *  (loosened to a union of url XOR callback_data without TypeScript discrimination). */
 export interface InlineButton {
   text: string;
   /** External URL — opens in browser. */
