@@ -86,8 +86,8 @@ function openDb() {
     CREATE INDEX IF NOT EXISTS idx_wallets_addr ON wallets(address);
 
     -- Most-recent known balance of each (wallet, pool) pair. Refreshed by the
-    -- positions cron. A row only exists if balance was non-zero at the last
-    -- scan — zero balances are deleted so we don't grow unbounded.
+    -- positions cron (every ~30 min). A row only exists if balance was non-zero
+    -- at the last scan — zero balances are deleted so we don't grow unbounded.
     CREATE TABLE IF NOT EXISTS positions (
       address       TEXT NOT NULL,
       pool_id       TEXT NOT NULL,
