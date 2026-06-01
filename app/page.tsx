@@ -28,8 +28,8 @@ export default function Home() {
             <span className="text-gradient">Without the rugs.</span>
           </h1>
           <p className="mt-6 max-w-2xl text-base text-white/60 sm:text-lg">
-            Real-time discovery of top APYs across Aerodrome, Morpho, Yearn and
-            others on Base. Safety alerts when TVL drops or APY spikes
+            Real-time discovery of top APYs across Aerodrome, Morpho, Yearn,
+            and others on Base. Safety alerts when TVL drops or APY spikes
             suspiciously. One-click stake when you find one you trust.
           </p>
           <div className="mt-9 flex flex-wrap gap-3">
