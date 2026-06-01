@@ -33,7 +33,8 @@ export interface TrackedVault {
   project: string;
 }
 
-// All addresses checksummed for clarity; positionScanner lowercases them.
+// All addresses checksummed for clarity; positionScanner lowercases them
+// before passing to viem (avoids the checksum-mismatch warning on bad input).
 export const TRACKED_VAULTS: TrackedVault[] = [
   // Morpho — Steakhouse USDC vault
   {
