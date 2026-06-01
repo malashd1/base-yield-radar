@@ -140,8 +140,8 @@ export default function AlertsPage() {
           </h2>
           <p className="mt-3 max-w-xl text-sm text-white/55">
             v1 covers the biggest single-asset yield positions on Base.
-            LP / NFT positions (Uniswap V3, Aerodrome Slipstream) are on the
-            roadmap.
+            LP / NFT positions (Uniswap V3, Aerodrome Slipstream) are next on
+            the roadmap.
           </p>
           <ul className="mt-6 grid gap-2 sm:grid-cols-2">
             <Pill>Morpho — Steakhouse USDC vault</Pill>
