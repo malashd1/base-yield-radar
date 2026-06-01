@@ -53,6 +53,8 @@ const PRESET_TVL = [
 ];
 
 // APY above this threshold is almost certainly emission-driven and will decay.
+// Tuned by eyeballing top yields on Base — 500% catches the obvious farms while
+// leaving room for legitimate volatile-pair LPs to show up.
 const INCENTIVE_APY_THRESHOLD = 500;
 // Reward APY must dominate base by this multiple to count as an incentive farm.
 const REWARD_TO_BASE_RATIO = 3;
